@@ -3,115 +3,98 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>PLANIX</title>
+<title>PLANIX MAX</title>
 <style>
-  :root{
-    --bg:#0b0f1a; --panel:#121828; --panel2:#1a2238; --line:#232c44;
-    --text:#e8ecf7; --muted:#8b95b5; --accent:#5b8cff; --accent2:#8b5bff;
-    --ok:#2ecc71; --warn:#ffb84d; --bad:#ff5b6e;
-    --radius:16px;
-  }
-  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  html,body{height:100%;}
-  body{
-    margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-   background:radial-gradient(1200px 600px at 20% 0%, #17203a 0%, var(--bg) 60%);
-    color:var(--text); overflow:hidden;
-  }
-  .app{max-width:520px; margin:0 auto; height:100dvh; display:flex; flex-direction:column; position:relative;}
-  .screen{display:none; flex-direction:column; height:100%; animation:fade .25s ease;}
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  :root{--bg:#070a12;--panel:#0f1524;--panel2:#161f33;--line:#222d47;--text:#f0f4fc;--muted:#8b95b5;--accent:#5b8cff;--accent2:#a855f7;--ok:#10b981;--warn:#f59e0b;--bad:#ef4444;--radius:18px;--shadow:0 8px 30px rgba(0,0,0,0.4);}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Inter',sans-serif;}
+  html,body{height:100%;margin:0;}
+  body{background:radial-gradient(1200px 600px at 10% -10%, #1e2a4a 0%, var(--bg) 60%);color:var(--text);overflow:hidden;display:flex;justify-content:center;}
+  .app{width:100%;max-width:520px;height:100dvh;display:flex;flex-direction:column;position:relative;background:rgba(7,10,18,0.6);backdrop-filter:blur(20px);}
+  .screen{display:none;flex-direction:column;height:100%;animation:fade .3s cubic-bezier(0.2,0.8,0.2,1);overflow:hidden;}
   .screen.active{display:flex;}
-  @keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
-  @keyframes pop{from{opacity:0; transform:scale(.96);} to{opacity:1; transform:scale(1);}}
-  @keyframes slideUp{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:none;}}
-  .pad{padding:20px;}
-  .center{align-items:center; justify-content:center; text-align:center;}
-  h1{font-size:34px; margin:0 0 6px; letter-spacing:.5px;}
-  h2{font-size:20px; margin:0 0 12px;}
-  .logo{width:84px;height:84px;border-radius:24px; margin-bottom:18px;
-    background:linear-gradient(135deg,var(--accent),var(--accent2));
-    display:flex;align-items:center;justify-content:center;font-size:40px;
-    box-shadow:0 10px 40px rgba(91,140,255,.35); animation:pop .4s ease;}
-  .sub{color:var(--muted); font-size:15px; line-height:1.5; margin:0 0 22px;}
-  .btn{width:100%; padding:15px; border:none; border-radius:var(--radius); font-size:16px; font-weight:600;
-    background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; cursor:pointer;
-    transition:transform .12s, opacity .2s;}
-  .btn:active{transform:scale(.97);}
-  .btn.ghost{background:transparent; border:1px solid var(--line); color:var(--text);}
-  .btn.small{padding:10px 14px; font-size:14px; width:auto;}
-  .btn:disabled{opacity:.5; cursor:default;}
-  .field{margin-bottom:14px;}
-  .field label{display:block; font-size:13px; color:var(--muted); margin-bottom:7px;}
-  input,select{width:100%; padding:14px; border-radius:14px; border:1px solid var(--line);
-    background:var(--panel); color:var(--text); font-size:16px; outline:none; transition:border .2s;}
-  input:focus,select:focus{border-color:var(--accent);}
-  .code-row{display:flex; gap:8px; justify-content:center; margin:18px 0;}
-  .code-row input{width:44px; height:56px; text-align:center; font-size:22px; font-weight:700; padding:0;}
-  .hint{font-size:13px; color:var(--muted); margin-top:10px;}
-  .topbar{display:flex; align-items:center; gap:12px; padding:14px 16px; border-bottom:1px solid var(--line);
-    background:rgba(18,24,40,.6); backdrop-filter:blur(10px); position:sticky; top:0; z-index:5;}
-  .topbar h2{margin:0; font-size:18px; flex:1;}
-  .icon-btn{width:40px;height:40px;border-radius:12px; border:1px solid var(--line); background:var(--panel);
-    color:var(--text); font-size:18px; cursor:pointer; display:flex;align-items:center;justify-content:center;}
-  .icon-btn:active{transform:scale(.94);}
-  .scroll{flex:1; overflow-y:auto; padding:16px;}
-  .list-item{display:flex; align-items:center; gap:12px; padding:13px; border-radius:14px;
-    background:var(--panel); margin-bottom:10px; cursor:pointer; transition:transform .12s, background .2s;}
-  .list-item:active{transform:scale(.98); background:var(--panel2);}
-  .avatar{width:46px;height:46px;border-radius:14px; flex-shrink:0;
-    background:linear-gradient(135deg,#2b3a66,#1c2642); display:flex;align-items:center;justify-content:center;
-    font-weight:700; font-size:18px; color:#9fb3ff;}
-  .avatar.self{background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff;}
-  .li-main{flex:1; min-width:0;}
-  .li-title{font-weight:600; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .li-sub{color:var(--muted); font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .badge{font-size:11px; padding:3px 8px; border-radius:999px; background:var(--panel2); color:var(--muted);}
-  .badge.prem{background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff;}
-  .chat-body{flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:10px;}
-  .msg{max-width:80%; padding:11px 14px; border-radius:16px; font-size:15px; line-height:1.4;
-    animation:slideUp .22s ease; word-wrap:break-word;}
-  .msg.me{align-self:flex-end; background:linear-gradient(135deg,var(--accent),var(--accent2)); border-bottom-right-radius:5px;}
-  .msg.them{align-self:flex-start; background:var(--panel2); border-bottom-left-radius:5px;}
-  .msg .meta{display:block; font-size:11px; opacity:.65; margin-top:4px;}
-  .composer{display:flex; gap:8px; padding:12px; border-top:1px solid var(--line); background:var(--panel);}
-  .composer input{flex:1; border-radius:14px;}
-  .send{width:48px;height:48px;border-radius:14px; border:none; color:#fff; font-size:20px; cursor:pointer;
-    background:linear-gradient(135deg,var(--accent),var(--accent2)); flex-shrink:0;}
-  .send:active{transform:scale(.94);}
-  .sheet{position:absolute; inset:0; background:rgba(0,0,0,.55); display:none; align-items:flex-end; z-index:20;}
-  .sheet.open{display:flex; animation:fade .2s;}
-  .sheet-panel{width:100%; background:var(--panel); border-radius:24px 24px 0 0; padding:20px;
-    animation:slideUp .25s ease;}
-  .sheet-panel h3{margin:0 0 14px; font-size:18px;}
-  .opt{display:flex; align-items:center; gap:12px; padding:14px; border-radius:14px; background:var(--panel2);
-    margin-bottom:10px; cursor:pointer; font-size:15px;}
-  .opt:active{transform:scale(.98);}
-  .opt .emo{font-size:20px; width:26px; text-align:center;}
-  .row{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px;
-    background:var(--panel); border-radius:14px; margin-bottom:10px;}
-  .row .t{font-size:15px;}
-  .row .d{font-size:12px; color:var(--muted); margin-top:3px;}
-  .switch{width:50px;height:30px;border-radius:999px; background:var(--line); position:relative; cursor:pointer; flex-shrink:0; transition:background .2s;}
-  .switch.on{background:var(--accent);}
-  .switch::after{content:""; position:absolute; width:24px;height:24px;border-radius:50%; background:#fff; top:3px; left:3px; transition:left .2s;}
+  @keyframes fade{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+  @keyframes pop{from{opacity:0;transform:scale(.95);}to{opacity:1;transform:scale(1);}}
+  @keyframes slideUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:none;}}
+  .pad{padding:24px;overflow-y:auto;}
+  .center{align-items:center;justify-content:center;text-align:center;}
+  h1{font-size:36px;margin:0 0 8px;letter-spacing:-1px;background:linear-gradient(135deg,#fff,#8892b0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  h2{font-size:22px;margin:0 0 16px;font-weight:600;}
+  h3{font-size:14px;margin:24px 0 12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:600;}
+  .logo{width:90px;height:90px;border-radius:28px;margin-bottom:24px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:44px;font-weight:bold;box-shadow:0 10px 40px rgba(91,140,255,.4);animation:pop .5s cubic-bezier(0.2,0.8,0.2,1);}
+  .sub{color:var(--muted);font-size:16px;line-height:1.5;margin:0 0 32px;max-width:300px;}
+  .btn{width:100%;padding:16px;border:none;border-radius:var(--radius);font-size:16px;font-weight:600;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;cursor:pointer;transition:all .2s;box-shadow:0 4px 15px rgba(91,140,255,0.2);}
+  .btn:active{transform:scale(.97);box-shadow:0 2px 5px rgba(91,140,255,0.2);}
+  .btn.ghost{background:var(--panel2);border:1px solid var(--line);color:var(--text);box-shadow:none;}
+  .btn.small{padding:10px 16px;font-size:14px;width:auto;border-radius:12px;}
+  .btn.danger{background:linear-gradient(135deg,#ef4444,#b91c1c);}
+  .field{margin-bottom:18px;}
+  .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:8px;font-weight:500;}
+  input,select,textarea{width:100%;padding:16px;border-radius:16px;border:1px solid var(--line);background:var(--panel);color:var(--text);font-size:16px;outline:none;transition:all .2s;}
+  input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,140,255,0.1);}
+  textarea{resize:none;height:80px;}
+  .code-row{display:flex;gap:10px;justify-content:center;margin:24px 0;}
+  .code-row input{width:48px;height:60px;text-align:center;font-size:24px;font-weight:700;padding:0;border-radius:16px;}
+  .hint{font-size:13px;color:var(--muted);margin-top:12px;}
+  .topbar{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--line);background:rgba(16,22,37,0.8);backdrop-filter:blur(20px);position:sticky;top:0;z-index:10;}
+  .topbar h2{margin:0;font-size:18px;flex:1;font-weight:600;}
+  .icon-btn{width:42px;height:42px;border-radius:14px;border:none;background:var(--panel2);color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+  .icon-btn:active{transform:scale(.9);}
+  .icon-btn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .scroll{flex:1;overflow-y:auto;padding:16px;}
+  .list-item{display:flex;align-items:center;gap:14px;padding:16px;border-radius:20px;background:var(--panel);margin-bottom:12px;cursor:pointer;transition:all .2s;border:1px solid transparent;}
+  .list-item:active{transform:scale(.98);background:var(--panel2);}
+  .avatar{width:52px;height:52px;border-radius:18px;flex-shrink:0;background:linear-gradient(135deg,#2b3a66,#1c2642);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;color:#a9c1ff;box-shadow:inset 0 0 10px rgba(255,255,255,0.05);}
+  .avatar.self{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;}
+  .avatar.sm{width:40px;height:40px;border-radius:14px;font-size:16px;}
+  .li-main{flex:1;min-width:0;}
+  .li-title{font-weight:600;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;}
+  .li-sub{color:var(--muted);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px;}
+  .badge{font-size:11px;padding:4px 10px;border-radius:999px;background:var(--panel2);color:var(--muted);font-weight:600;letter-spacing:.5px;}
+  .badge.prem{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;}
+  .badge.ok{background:rgba(16,185,129,0.2);color:#34d399;}
+  .badge.warn{background:rgba(245,158,11,0.2);color:#fbbf24;}
+  .chat-body{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px;background:url('data:image/svg+xml;utf8,<svg width="20" height="20" xmlns="http://www.w3.org/2000/svg"><circle cx="2" cy="2" r="1" fill="%23222d47" opacity="0.5"/></svg>');}
+  .msg{max-width:85%;padding:14px 18px;border-radius:22px;font-size:15px;line-height:1.5;animation:slideUp .3s cubic-bezier(0.2,0.8,0.2,1);word-wrap:break-word;position:relative;}
+  .msg.me{align-self:flex-end;background:linear-gradient(135deg,var(--accent),var(--accent2));border-bottom-right-radius:6px;box-shadow:0 4px 15px rgba(91,140,255,0.2);}
+  .msg.them{align-self:flex-start;background:var(--panel2);border-bottom-left-radius:6px;border:1px solid var(--line);}
+  .msg .meta{display:flex;align-items:center;justify-content:flex-end;gap:4px;font-size:11px;opacity:.7;margin-top:6px;}
+  .composer{display:flex;gap:10px;padding:16px;border-top:1px solid var(--line);background:var(--panel);}
+  .composer input{flex:1;border-radius:20px;padding:14px 20px;}
+  .send{width:50px;height:50px;border-radius:50%;border:none;color:#fff;font-size:20px;cursor:pointer;background:linear-gradient(135deg,var(--accent),var(--accent2));flex-shrink:0;box-shadow:0 4px 15px rgba(91,140,255,0.3);transition:all .2s;display:flex;align-items:center;justify-content:center;}
+  .send svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-left:4px;}
+  .send:active{transform:scale(.9);}
+  .sheet{position:absolute;inset:0;background:rgba(0,0,0,.7);display:none;align-items:flex-end;z-index:100;backdrop-filter:blur(5px);}
+  .sheet.open{display:flex;animation:fade .2s;}
+  .sheet-panel{width:100%;background:var(--panel);border-radius:32px 32px 0 0;padding:24px;animation:slideUp .3s cubic-bezier(0.2,0.8,0.2,1);border-top:1px solid var(--line);}
+  .sheet-panel h3{margin:0 0 20px;font-size:20px;color:var(--text);text-transform:none;letter-spacing:0;}
+  .opt{display:flex;align-items:center;gap:16px;padding:18px;border-radius:20px;background:var(--panel2);margin-bottom:12px;cursor:pointer;font-size:16px;font-weight:500;transition:all .2s;border:1px solid transparent;}
+  .opt:active{transform:scale(.98);background:#1c2642;}
+  .opt svg{width:24px;height:24px;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px;background:var(--panel);border-radius:20px;margin-bottom:12px;border:1px solid transparent;transition:all .2s;}
+  .row .t{font-size:16px;font-weight:500;}
+  .row .d{font-size:13px;color:var(--muted);margin-top:4px;}
+  .switch{width:52px;height:32px;border-radius:999px;background:var(--line);position:relative;cursor:pointer;flex-shrink:0;transition:all .3s;}
+  .switch.on{background:linear-gradient(135deg,var(--accent),var(--accent2));}
+  .switch::after{content:"";position:absolute;width:26px;height:26px;border-radius:50%;background:#fff;top:3px;left:3px;transition:all .3s cubic-bezier(0.2,0.8,0.2,1);box-shadow:0 2px 5px rgba(0,0,0,0.2);}
   .switch.on::after{left:23px;}
-  .toast{position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(20px);
-    background:var(--panel2); border:1px solid var(--line); color:var(--text); padding:12px 18px; border-radius:14px;
-    font-size:14px; opacity:0; pointer-events:none; transition:all .3s; z-index:100; max-width:90%; text-align:center;}
-  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
-  .empty{text-align:center; color:var(--muted); padding:40px 20px; font-size:14px; line-height:1.6;}
-  .warn-box{background:rgba(255,184,77,.1); border:1px solid rgba(255,184,77,.3); color:#ffd08a;
-    padding:14px; border-radius:14px; font-size:13px; line-height:1.5; margin-bottom:14px;}
-  .plan-card{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:10px; cursor:pointer; transition:border .2s, transform .12s;}
+  .toast{position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(20px);background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:14px 24px;border-radius:20px;font-size:14px;font-weight:500;opacity:0;pointer-events:none;transition:all .3s;z-index:1000;max-width:90%;text-align:center;box-shadow:var(--shadow);}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;color:var(--muted);padding:40px;}
+  .empty svg{width:64px;height:64px;margin-bottom:20px;opacity:.5;fill:none;stroke:currentColor;stroke-width:1.5;}
+  .empty h3{color:var(--text);font-size:20px;margin:0 0 10px;text-transform:none;letter-spacing:0;}
+  .divider{height:1px;background:var(--line);margin:24px 0;}
+  .pill-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+  .pill{padding:10px 18px;border-radius:999px;background:var(--panel2);font-size:14px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:all .2s;}
+  .pill.active{background:rgba(91,140,255,.15);border-color:var(--accent);color:#a9c1ff;}
+  .plan-card{background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:20px;margin-bottom:14px;cursor:pointer;transition:all .3s;}
   .plan-card:active{transform:scale(.98);}
-  .plan-card.best{border-color:var(--accent); box-shadow:0 0 0 1px var(--accent);}
-  .plan-card .p{font-size:22px; font-weight:700;}
-  .plan-card .n{color:var(--muted); font-size:13px;}
-  .fade-in{animation:fade .3s ease;}
-  .divider{height:1px; background:var(--line); margin:16px 0;}
-  .pill-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;}
-  .pill{padding:8px 14px; border-radius:999px; background:var(--panel2); font-size:13px; cursor:pointer; border:1px solid transparent;}
-  .pill.active{background:rgba(91,140,255,.2); border-color:var(--accent); color:#a9c1ff;}
+  .plan-card.best{background:linear-gradient(135deg,rgba(91,140,255,0.1),rgba(168,85,247,0.1));border-color:var(--accent);box-shadow:0 8px 30px rgba(91,140,255,0.15);}
+  .plan-card .p{font-size:24px;font-weight:700;margin-bottom:4px;}
+  .plan-card .n{color:var(--muted);font-size:14px;}
+  ::-webkit-scrollbar{width:6px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:10px;}
 </style>
 </head>
 <body>
@@ -120,31 +103,30 @@
   <!-- ЭКРАН 1: ПРИВЕТСТВИЕ -->
   <div class="screen active center pad" id="scr-welcome">
     <div class="logo">P</div>
-    <h1>PLANIX</h1>
+    <h1>PLANIX MAX</h1>
     <p class="sub">Живой мессенджер.<br>Приватный. Надёжный.</p>
     <button class="btn" onclick="go('scr-email')">Продолжить с email</button>
-    <p class="hint">Прототип. Данные хранятся только в вашем браузере.</p>
+    <p class="hint">Данные хранятся только в вашем браузере.</p>
   </div>
 
   <!-- ЭКРАН 2: ВВОД EMAIL -->
   <div class="screen pad" id="scr-email">
-    <div class="topbar" style="margin:-20px -20px 20px; background:transparent; border:none;">
-      <button class="icon-btn" onclick="go('scr-welcome')">←</button>
+    <div class="topbar" style="margin:-24px -24px 24px; background:transparent; border:none;">
+      <button class="icon-btn" onclick="go('scr-welcome')"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
       <h2>Вход</h2>
     </div>
     <p class="sub">Введите почту — мы отправим код для входа.</p>
     <div class="field">
       <label>Email</label>
-      <input id="inp-email" type="email" placeholder="you@example.com" autocomplete="email">
+      <input id="inp-email" type="email" placeholder="you@example.com">
     </div>
-    <button class="btn" id="btn-send-code" onclick="sendCode()">Получить код</button>
-    <p class="hint">Код действует 10 минут. В прототипе он покажется на экране.</p>
+    <button class="btn" onclick="sendCode()">Получить код</button>
   </div>
 
   <!-- ЭКРАН 3: ВВОД КОДА -->
   <div class="screen pad" id="scr-code">
-    <div class="topbar" style="margin:-20px -20px 20px; background:transparent; border:none;">
-      <button class="icon-btn" onclick="go('scr-email')">←</button>
+    <div class="topbar" style="margin:-24px -24px 24px; background:transparent; border:none;">
+      <button class="icon-btn" onclick="go('scr-email')"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
       <h2>Код из письма</h2>
     </div>
     <p class="sub" id="code-sub">Введите 6-значный код.</p>
@@ -152,22 +134,20 @@
       <input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric">
       <input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric">
     </div>
-    <div class="warn-box" id="code-demo" style="display:none;"></div>
+    <div class="warn-box" id="code-demo" style="display:none; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); color:#fbbf24; padding:14px; border-radius:14px; font-size:13px; margin-bottom:14px;"></div>
     <button class="btn" onclick="verifyCode()">Подтвердить</button>
     <p class="hint" id="code-timer"></p>
   </div>
 
   <!-- ЭКРАН 4: НАСТРОЙКА ПРОФИЛЯ -->
   <div class="screen pad" id="scr-profile">
-    <div class="topbar" style="margin:-20px -20px 20px; background:transparent; border:none;">
-      <h2 style="flex:1;">Настройте профиль</h2>
-    </div>
-    <div style="text-align:center; margin-bottom:18px;">
-      <div class="avatar self" id="prof-avatar" style="width:80px;height:80px;font-size:32px;margin:0 auto 10px;">?</div>
+    <h2 style="margin-bottom:20px;">Настройте профиль</h2>
+    <div style="text-align:center; margin-bottom:24px;">
+      <div class="avatar self" id="prof-avatar" style="width:90px;height:90px;font-size:36px;margin:0 auto 12px; border-radius:30px;">?</div>
       <button class="btn ghost small" onclick="pickAvatar()">Сменить аватар</button>
     </div>
     <div class="field">
-      <label>Имя (обязательно)</label>
+      <label>Имя</label>
       <input id="inp-name" placeholder="Как вас зовут?" maxlength="40">
     </div>
     <div class="field">
@@ -175,74 +155,81 @@
       <input id="inp-username" placeholder="username" maxlength="20">
     </div>
     <div class="field">
-      <label>Тема оформления</label>
-      <select id="inp-theme">
-        <option value="neon">Neon Wave</option>
-        <option value="calm">Calm Blue</option>
-        <option value="sunset">Sunset</option>
+      <label>О себе (Био)</label>
+      <textarea id="inp-bio" placeholder="Пара слов о себе..." maxlength="100"></textarea>
+    </div>
+    <div class="field">
+      <label>Статус</label>
+      <select id="inp-status">
+        <option value="online">На связи</option>
+        <option value="away">Отошел</option>
+        <option value="dnd">Не беспокоить</option>
+        <option value="invisible">Невидимка</option>
       </select>
     </div>
     <button class="btn" onclick="finishProfile()">Готово</button>
-    <button class="btn ghost" style="margin-top:10px;" onclick="finishProfile(true)">Пропустить (кроме имени)</button>
   </div>
 
   <!-- ЭКРАН 5: СПИСОК ЧАТОВ -->
   <div class="screen" id="scr-chats">
     <div class="topbar">
-      <div class="avatar self" id="top-avatar" style="width:38px;height:38px;font-size:15px;cursor:pointer;" onclick="go('scr-settings')">?</div>
+      <div class="avatar self" id="top-avatar" style="width:42px;height:42px;font-size:16px;cursor:pointer;" onclick="go('scr-settings')">?</div>
       <h2>PLANIX</h2>
-      <button class="icon-btn" onclick="openCreateSheet()">＋</button>
+      <button class="icon-btn solid" onclick="openCreateSheet()"><svg viewBox="0 0 24 24" style="stroke:#fff;"><path d="M12 5v14M5 12h14"/></svg></button>
     </div>
     <div class="scroll" id="chats-list"></div>
-    <div class="empty" id="chats-empty">Пока пусто.<br>Нажмите ＋, чтобы создать чат.</div>
+    <div class="empty" id="chats-empty" style="display:none;">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <h3>Пока пусто</h3>
+      <p>Нажмите +, чтобы создать чат.</p>
+    </div>
   </div>
 
   <!-- ЭКРАН 6: ЧАТ -->
   <div class="screen" id="scr-chat">
     <div class="topbar">
-      <button class="icon-btn" onclick="go('scr-chats')">←</button>
-      <div class="avatar" id="chat-avatar" style="width:38px;height:38px;font-size:15px;">?</div>
+      <button class="icon-btn" onclick="go('scr-chats')"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+      <div class="avatar sm" id="chat-avatar">?</div>
       <div style="flex:1; min-width:0;">
         <h2 id="chat-title" style="margin:0; font-size:16px;">Чат</h2>
         <div id="chat-type" style="font-size:12px; color:var(--muted);"></div>
       </div>
-      <button class="icon-btn" onclick="go('scr-settings')">⚙</button>
+      <button class="icon-btn" onclick="go('scr-settings')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
     </div>
     <div class="chat-body" id="chat-body"></div>
     <div class="composer">
       <input id="inp-msg" placeholder="Сообщение..." onkeydown="if(event.key==='Enter')sendMsg()">
-      <button class="send" onclick="sendMsg()">➤</button>
+      <button class="send" onclick="sendMsg()"><svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
     </div>
   </div>
 
   <!-- ЭКРАН 7: НАСТРОЙКИ -->
   <div class="screen" id="scr-settings">
     <div class="topbar">
-      <button class="icon-btn" onclick="go('scr-chats')">←</button>
+      <button class="icon-btn" onclick="go('scr-chats')"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
       <h2>Настройки</h2>
     </div>
     <div class="scroll">
-      <div class="row">
-        <div style="display:flex; align-items:center; gap:12px;">
-          <div class="avatar self" id="set-avatar" style="width:44px;height:44px;font-size:16px;">?</div>
+      <div class="row" style="background:linear-gradient(135deg,rgba(91,140,255,0.1),rgba(168,85,247,0.1)); border:1px solid var(--accent);">
+        <div style="display:flex; align-items:center; gap:16px;">
+          <div class="avatar self" id="set-avatar" style="width:56px;height:56px;font-size:22px;">?</div>
           <div>
-            <div class="t" id="set-name">Гость</div>
+            <div class="t" id="set-name" style="font-size:18px;">Гость</div>
             <div class="d" id="set-username">@guest</div>
+            <div class="d" id="set-bio" style="margin-top:4px; opacity:0.8;">Био</div>
           </div>
         </div>
-        <span class="badge prem" id="set-prem" style="display:none;">PREMIUM</span>
+        <span class="badge prem" id="set-prem" style="display:none;">PRO</span>
       </div>
 
-      <h3 style="margin:20px 0 10px; font-size:15px; color:var(--muted);">Конфиденциальность</h3>
+      <h3>Конфиденциальность</h3>
 
       <div class="row" style="flex-direction:column; align-items:stretch;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <div class="t">📸 Скриншоты в чатах</div>
-            <div class="d">Кто может делать скриншоты переписки</div>
-          </div>
+        <div>
+          <div class="t">Скриншоты в чатах</div>
+          <div class="d">Кто может делать скриншоты</div>
         </div>
-        <select id="set-screenshot" style="margin-top:10px;" onchange="saveScreenshotPolicy()">
+        <select id="set-screenshot" style="margin-top:12px;" onchange="saveScreenshotPolicy()">
           <option value="ask">Спрашивать каждый раз</option>
           <option value="allow_all">Разрешить всем</option>
           <option value="direct_only">Только в личных чатах</option>
@@ -252,15 +239,31 @@
 
       <div class="row">
         <div>
-          <div class="t">👻 Невидимка</div>
-          <div class="d">Скрыть «онлайн» и «прочитано»</div>
+          <div class="t">Водяные знаки</div>
+          <div class="d">Накладывать ник на скриншоты</div>
         </div>
-        <div class="switch" id="set-invisible" onclick="toggleSwitch(this,'invisible')"></div>
+        <div class="switch" id="set-watermark" onclick="toggleSwitch(this,'watermark')"></div>
       </div>
 
       <div class="row">
         <div>
-          <div class="t">⏳ Исчезающие сообщения</div>
+          <div class="t">Двухфакторная защита (2FA)</div>
+          <div class="d">Дополнительный пароль при входе</div>
+        </div>
+        <div class="switch" id="set-2fa" onclick="toggleSwitch(this,'2fa')"></div>
+      </div>
+
+      <div class="row">
+        <div>
+          <div class="t">Скрыть номер телефона</div>
+          <div class="d">Доступен только контактам</div>
+        </div>
+        <div class="switch on" id="set-hide-phone" onclick="toggleSwitch(this,'hide_phone')"></div>
+      </div>
+
+      <div class="row">
+        <div>
+          <div class="t">Исчезающие сообщения</div>
           <div class="d">Автоудаление через 24 часа</div>
         </div>
         <div class="switch" id="set-disappear" onclick="toggleSwitch(this,'disappear')"></div>
@@ -268,18 +271,18 @@
 
       <div class="row">
         <div>
-          <div class="t">⚡ Режим «Эконом»</div>
+          <div class="t">Режим «Эконом»</div>
           <div class="d">Меньше анимаций, больше батареи</div>
         </div>
         <div class="switch" id="set-eco" onclick="toggleSwitch(this,'eco')"></div>
       </div>
 
-      <h3 style="margin:20px 0 10px; font-size:15px; color:var(--muted);">PLANIX PREMIUM</h3>
+      <h3>PLANIX PREMIUM</h3>
       <div id="premium-block"></div>
 
       <div class="divider"></div>
-      <button class="btn ghost" onclick="resetAll()">Выйти и очистить данные</button>
-      <p class="hint" style="text-align:center;">PLANIX Prototype · данные только в браузере</p>
+      <button class="btn danger" onclick="resetAll()">Выйти и очистить данные</button>
+      <p class="hint" style="text-align:center; margin-top:20px;">PLANIX 2.0 MAX · Сделано с любовью</p>
     </div>
   </div>
 
@@ -287,10 +290,10 @@
   <div class="sheet" id="sheet-create" onclick="if(event.target===this)closeSheet()">
     <div class="sheet-panel">
       <h3>Создать</h3>
-      <div class="opt" onclick="createConv('talk')"><span class="emo">🗣</span> Беседа — до 10 человек</div>
-      <div class="opt" onclick="createConv('group')"><span class="emo">👥</span> Группа — много участников</div>
-      <div class="opt" onclick="createConv('channel')"><span class="emo">📢</span> Канал — только админы пишут</div>
-      <div class="opt" onclick="closeSheet()" style="justify-content:center; color:var(--muted);">Отмена</div>
+      <div class="opt" onclick="createConv('talk')"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> Беседа — до 10 человек</div>
+      <div class="opt" onclick="createConv('group')"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Группа — много участников</div>
+      <div class="opt" onclick="createConv('channel')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Канал — только админы</div>
+      <div class="opt" onclick="closeSheet()" style="justify-content:center; color:var(--muted); background:transparent;">Отмена</div>
     </div>
   </div>
 
@@ -306,8 +309,14 @@
         <label>Тип</label>
         <div class="pill-row" id="newconv-types"></div>
       </div>
+      <div class="row" style="margin-bottom:20px;">
+        <div>
+          <div class="t">Публичный</div>
+          <div class="d">Видно в поиске</div>
+        </div>
+        <div class="switch" id="newconv-public" onclick="toggleSwitch(this,'pub')"></div>
+      </div>
       <button class="btn" onclick="confirmCreateConv()">Создать</button>
-      <button class="btn ghost" style="margin-top:10px;" onclick="closeSheet()">Отмена</button>
     </div>
   </div>
 
@@ -315,11 +324,7 @@
 </div>
 
 <script>
-/* ============================================================
-   PLANIX PROTOTYPE — один файл, localStorage
-   ============================================================ */
-
-const DB_KEY = 'planix_proto_v1';
+const DB_KEY = 'planix_max_v1';
 let DB = loadDB();
 let currentConv = null;
 let pendingEmail = '';
@@ -327,22 +332,14 @@ let pendingCode = '';
 let pendingIsNew = false;
 let codeTimerInt = null;
 let newConvType = 'group';
+let isNewConvPublic = false;
 
 function loadDB(){
-  try{
-    const raw = localStorage.getItem(DB_KEY);
-    if(raw) return JSON.parse(raw);
-  }catch(e){}
-  return {
-    user: null,          // {name, username, avatar, premium, settings}
-    convs: [],           // [{id,type,title,avatar,messages:[{id,text,me,ts}]}]
-    premium: false,
-    premiumPlan: null
-  };
+  try{ const raw = localStorage.getItem(DB_KEY); if(raw) return JSON.parse(raw); }catch(e){}
+  return { user: null, convs: [], premium: false, premiumPlan: null };
 }
 function saveDB(){ localStorage.setItem(DB_KEY, JSON.stringify(DB)); }
 
-/* ---------- Навигация ---------- */
 function go(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -350,7 +347,6 @@ function go(id){
   if(id==='scr-settings') renderSettings();
 }
 
-/* ---------- Toast ---------- */
 let toastT=null;
 function toast(msg){
   const t=document.getElementById('toast');
@@ -359,43 +355,38 @@ function toast(msg){
   toastT=setTimeout(()=>t.classList.remove('show'),2200);
 }
 
-/* ---------- ЭКРАН EMAIL → КОД ---------- */
 function sendCode(){
   const email = document.getElementById('inp-email').value.trim();
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ toast('Введите корректный email'); return; }
   pendingEmail = email;
   pendingCode = String(Math.floor(100000 + Math.random()*900000));
-  pendingIsNew = !DB.user || (DB.user && DB.user.email !== email) ? true : false;
-  // В прототипе профиль один; считаем новым, если профиля нет
   pendingIsNew = !DB.user;
 
   document.getElementById('code-sub').textContent = 'Код отправлен на ' + email;
   const demo = document.getElementById('code-demo');
   demo.style.display='block';
-  demo.textContent = '🔐 Демо-режим: ваш код — ' + pendingCode + ' (в реальном приложении придёт на почту)';
+  demo.textContent = 'Демо-режим: ваш код — ' + pendingCode;
 
   const inputs = document.querySelectorAll('#code-row input');
   inputs.forEach(i=>i.value='');
   inputs[0].focus();
-
   startCodeTimer();
   go('scr-code');
 }
 
 function startCodeTimer(){
   clearInterval(codeTimerInt);
-  let left = 600; // 10 минут
+  let left = 600;
   const el = document.getElementById('code-timer');
   const tick = ()=>{
     const m = Math.floor(left/60), s = left%60;
     el.textContent = 'Код действует: ' + m + ':' + String(s).padStart(2,'0');
-    if(left<=0){ clearInterval(codeTimerInt); el.textContent='Код истёк. Запросите новый.'; }
+    if(left<=0){ clearInterval(codeTimerInt); el.textContent='Код истёк.'; }
     left--;
   };
   tick(); codeTimerInt = setInterval(tick,1000);
 }
 
-// автопереход между ячейками кода
 document.addEventListener('DOMContentLoaded', ()=>{
   const inputs = document.querySelectorAll('#code-row input');
   inputs.forEach((inp,idx)=>{
@@ -412,61 +403,53 @@ document.addEventListener('DOMContentLoaded', ()=>{
 function verifyCode(){
   const inputs = document.querySelectorAll('#code-row input');
   const entered = Array.from(inputs).map(i=>i.value).join('');
-   if(entered.length!==6){ toast('Введите все 6 цифр'); return; }
+  if(entered.length!==6){ toast('Введите 6 цифр'); return; }
   if(entered!==pendingCode){ toast('Неверный код'); return; }
   clearInterval(codeTimerInt);
 
   if(pendingIsNew){
-    // новый пользователь → настройка профиля
-    const av = document.getElementById('prof-avatar');
-    av.textContent = '?';
+    document.getElementById('prof-avatar').textContent = '?';
     document.getElementById('inp-name').value='';
     document.getElementById('inp-username').value='';
+    document.getElementById('inp-bio').value='';
     go('scr-profile');
   }else{
-    // существующий → кнопка «Войти» (эмулируем: сразу входим)
     toast('С возвращением!');
     go('scr-chats');
   }
 }
 
-/* ---------- Настройка профиля ---------- */
-const avatarEmojis = ['🦊','🐼','🐯','🦉','🐸','🐙','🦄','🐺','🐨','🦁','🐵','🐧'];
 let avatarPick = null;
 function pickAvatar(){
-  avatarPick = avatarEmojis[Math.floor(Math.random()*avatarEmojis.length)];
+  const avatars = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+  avatarPick = avatars[Math.floor(Math.random()*avatars.length)];
   document.getElementById('prof-avatar').textContent = avatarPick;
 }
 
-function finishProfile(skip){
+function finishProfile(){
   const name = document.getElementById('inp-name').value.trim();
   if(!name){ toast('Имя обязательно'); return; }
   const username = (document.getElementById('inp-username').value.trim() || 'user'+Math.floor(Math.random()*9999)).replace(/^@/,'');
-  const theme = skip ? 'neon' : document.getElementById('inp-theme').value;
+  const bio = document.getElementById('inp-bio').value.trim() || 'В сети PLANIX';
+  const status = document.getElementById('inp-status').value;
   const avatar = avatarPick || name.charAt(0).toUpperCase();
 
   DB.user = {
-    email: pendingEmail,
-    name, username, avatar, theme,
+    email: pendingEmail, name, username, bio, status, avatar,
     premium: false,
-    settings: { screenshot:'ask', invisible:false, disappear:false, eco:false }
+    settings: { screenshot:'ask', watermark:false, '2fa':false, hide_phone:true, disappear:false, eco:false }
   };
   saveDB();
   toast('Добро пожаловать в PLANIX!');
-  renderAll();
   go('scr-chats');
 }
 
-/* ---------- Список чатов ---------- */
 function renderChats(){
   const list = document.getElementById('chats-list');
   const empty = document.getElementById('chats-empty');
-  // обновить аватар в топбаре
-  if(DB.user){
-    document.getElementById('top-avatar').textContent = DB.user.avatar;
-  }
+  if(DB.user) document.getElementById('top-avatar').textContent = DB.user.avatar;
   list.innerHTML='';
-  if(!DB.convs.length){ empty.style.display='block'; return; }
+  if(!DB.convs.length){ empty.style.display='flex'; return; }
   empty.style.display='none';
   DB.convs.forEach(c=>{
     const last = c.messages[c.messages.length-1];
@@ -475,26 +458,24 @@ function renderChats(){
     div.onclick = ()=> openChat(c.id);
     const typeLabel = {talk:'Беседа', group:'Группа', channel:'Канал'}[c.type]||'Чат';
     div.innerHTML = `
-      <div class="avatar">${c.avatar||'💬'}</div>
+      <div class="avatar">${c.avatar||'#'}</div>
       <div class="li-main">
         <div class="li-title">${escapeHtml(c.title)}</div>
         <div class="li-sub">${last?escapeHtml(last.text):'Нет сообщений'}</div>
       </div>
-      <span class="badge">${typeLabel}</span>`;
+      <span class="badge ${c.isPublic?'ok':''}">${typeLabel}</span>`;
     list.appendChild(div);
   });
 }
 
 function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
-/* ---------- Открыть чат ---------- */
 function openChat(id){
   currentConv = DB.convs.find(c=>c.id===id);
   if(!currentConv) return;
   document.getElementById('chat-title').textContent = currentConv.title;
-  document.getElementById('chat-avatar').textContent = currentConv.avatar||'💬';
-  const typeLabel = {talk:'Беседа · до 10', group:'Группа', channel:'Канал · только админы'}[currentConv.type]||'Чат';
-  document.getElementById('chat-type').textContent = typeLabel;
+  document.getElementById('chat-avatar').textContent = currentConv.avatar||'#';
+  document.getElementById('chat-type').textContent = currentConv.isPublic ? 'Публичный' : 'Приватный';
   renderMessages();
   go('scr-chat');
 }
@@ -504,13 +485,13 @@ function renderMessages(){
   body.innerHTML='';
   if(!currentConv) return;
   if(!currentConv.messages.length){
-    body.innerHTML = '<div class="empty">Начните переписку 👋</div>';
+    body.innerHTML = '<div class="empty"><h3>Пока тихо</h3><p>Напишите первое сообщение!</p></div>';
   }
   currentConv.messages.forEach(m=>{
     const d = document.createElement('div');
     d.className = 'msg ' + (m.me?'me':'them');
     const time = new Date(m.ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
-    d.innerHTML = escapeHtml(m.text) + `<span class="meta">${time}</span>`;
+    d.innerHTML = escapeHtml(m.text) + `<span class="meta">${time} ${m.me?'✓✓':''}</span>`;
     body.appendChild(d);
   });
   body.scrollTop = body.scrollHeight;
@@ -521,28 +502,21 @@ function sendMsg(){
   const text = inp.value.trim();
   if(!text || !currentConv) return;
   currentConv.messages.push({id:uid(), text, me:true, ts:Date.now()});
-  inp.value='';
-  saveDB();
-  renderMessages();
-  // автоответ для демонстрации
+  inp.value=''; saveDB(); renderMessages();
   setTimeout(()=>{
-    currentConv.messages.push({id:uid(), text:'👍 (автоответ прототипа)', me:false, ts:Date.now()});
+    currentConv.messages.push({id:uid(), text:'Автоответ: сообщение доставлено!', me:false, ts:Date.now()});
     saveDB();
     if(document.getElementById('scr-chat').classList.contains('active')) renderMessages();
-  }, 900);
+  }, 1000);
 }
 
 function uid(){ return Math.random().toString(36).slice(2)+Date.now().toString(36); }
 
-/* ---------- Создание диалога ---------- */
 function openCreateSheet(){ document.getElementById('sheet-create').classList.add('open'); }
-function closeSheet(){
-  document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('open'));
-}
+function closeSheet(){ document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('open')); }
 
 function createConv(type){
-  newConvType = type;
-  closeSheet();
+  newConvType = type; closeSheet();
   const titles = {talk:'Новая беседа', group:'Новая группа', channel:'Новый канал'};
   document.getElementById('newconv-title').textContent = titles[type];
   document.getElementById('newconv-name').value='';
@@ -550,8 +524,11 @@ function createConv(type){
   const types = [['talk','Беседа'],['group','Группа'],['channel','Канал']];
   typesBox.innerHTML = types.map(([v,l])=>
     `<div class="pill ${v===type?'active':''}" onclick="pickConvType('${v}',this)">${l}</div>`).join('');
+  document.getElementById('newconv-public').classList.remove('on');
+  isNewConvPublic = false;
   document.getElementById('sheet-newconv').classList.add('open');
 }
+
 function pickConvType(v, el){
   newConvType = v;
   document.querySelectorAll('#newconv-types .pill').forEach(p=>p.classList.remove('active'));
@@ -561,56 +538,37 @@ function pickConvType(v, el){
 function confirmCreateConv(){
   const name = document.getElementById('newconv-name').value.trim();
   if(!name){ toast('Введите название'); return; }
-  const avatars = {talk:'🗣', group:'👥', channel:'📢'};
-  const conv = {
-    id: uid(), type: newConvType, title: name,
-    avatar: avatars[newConvType]||'💬',
-    messages: []
-  };
-  DB.convs.unshift(conv);
-  saveDB();
-  closeSheet();
-  renderChats();
-  openChat(conv.id);
+  const avatars = {talk:'#', group:'#', channel:'#'};
+  const conv = { id: uid(), type: newConvType, title: name, avatar: avatars[newConvType]||'#', isPublic: isNewConvPublic, messages: [] };
+  DB.convs.unshift(conv); saveDB(); closeSheet(); renderChats(); openChat(conv.id);
   toast('Создано: ' + name);
 }
 
-/* ---------- Настройки ---------- */
 function renderSettings(){
   if(!DB.user) return;
   document.getElementById('set-avatar').textContent = DB.user.avatar;
   document.getElementById('set-name').textContent = DB.user.name;
   document.getElementById('set-username').textContent = '@' + DB.user.username;
+  document.getElementById('set-bio').textContent = DB.user.bio;
   document.getElementById('set-prem').style.display = DB.user.premium?'inline-block':'none';
   document.getElementById('set-screenshot').value = DB.user.settings.screenshot;
-
-  setSwitch('set-invisible', DB.user.settings.invisible);
+  setSwitch('set-watermark', DB.user.settings.watermark);
+  setSwitch('set-2fa', DB.user.settings['2fa']);
+  setSwitch('set-hide-phone', DB.user.settings.hide_phone);
   setSwitch('set-disappear', DB.user.settings.disappear);
   setSwitch('set-eco', DB.user.settings.eco);
-
   renderPremium();
 }
 
-function setSwitch(id, on){
-  const el = document.getElementById(id);
-  if(!el) return;
-  el.classList.toggle('on', !!on);
-}
-function toggleSwitch(el, key){
-  el.classList.toggle('on');
-  DB.user.settings[key] = el.classList.contains('on');
-  saveDB();
-}
+function setSwitch(id, on){ const el = document.getElementById(id); if(el) el.classList.toggle('on', !!on); }
+function toggleSwitch(el, key){ el.classList.toggle('on'); if(DB.user){ DB.user.settings[key] = el.classList.contains('on'); saveDB(); } }
 
 function saveScreenshotPolicy(){
   const v = document.getElementById('set-screenshot').value;
-  DB.user.settings.screenshot = v;
-  saveDB();
-  const labels = {ask:'Спрашивать каждый раз', allow_all:'Разрешить всем', direct_only:'Только в личных чатах', deny_all:'Запретить всем'};
-  toast('Скриншоты: ' + labels[v]);
+  DB.user.settings.screenshot = v; saveDB();
+  toast('Скриншоты: ' + v);
 }
 
-/* ---------- Premium ---------- */
 const PREMIUM_PLANS = [
   {id:'week', title:'Неделя', price:50, note:'50 ₽ / неделя'},
   {id:'month', title:'Месяц', price:150, note:'150 ₽ / месяц · выгоднее', best:true},
@@ -620,72 +578,35 @@ const PREMIUM_PLANS = [
 function renderPremium(){
   const box = document.getElementById('premium-block');
   if(DB.user.premium){
-    box.innerHTML = `<div class="row" style="border:1px solid var(--accent);">
-      <div>
-        <div class="t">✨ Premium активен</div>
-        <div class="d">Тариф: ${DB.premiumPlan||'—'}</div>
-      </div>
-      <button class="btn ghost small" onclick="cancelPremium()">Отменить</button>
-    </div>`;
+    box.innerHTML = `<div class="row" style="border:1px solid var(--accent);"><div><div class="t">Premium активен</div><div class="d">${DB.premiumPlan}</div></div><button class="btn ghost small" onclick="cancelPremium()">Отменить</button></div>`;
     return;
   }
   box.innerHTML = PREMIUM_PLANS.map(p=>`
     <div class="plan-card ${p.best?'best':''}" onclick="buyPremium('${p.id}')">
       <div style="display:flex; justify-content:space-between; align-items:center;">
-        <div>
-          <div class="p">${p.title}</div>
-          <div class="n">${p.note}</div>
-        </div>
+        <div><div class="p">${p.title}</div><div class="n">${p.note}</div></div>
         <div class="badge prem">${p.price} ₽</div>
       </div>
-    </div>`).join('') +
-    `<p class="hint">Демо-оплата. В реальном приложении — ЮKassa / Stripe / App Store.</p>`;
+    </div>`).join('');
 }
 
 function buyPremium(planId){
   const plan = PREMIUM_PLANS.find(p=>p.id===planId);
-  DB.user.premium = true;
-  DB.premiumPlan = plan.title + ' · ' + plan.price + ' ₽';
-  saveDB();
-  toast('✨ Premium активирован (демо)');
-  renderSettings();
-  renderPremiumBadge();
+  DB.user.premium = true; DB.premiumPlan = plan.title + ' · ' + plan.price + ' ₽';
+  saveDB(); toast('Premium активирован!'); renderSettings();
 }
+
 function cancelPremium(){
-  DB.user.premium = false;
-  DB.premiumPlan = null;
-  saveDB();
-  toast('Premium отменён');
-  renderSettings();
-  renderPremiumBadge();
-}
-function renderPremiumBadge(){
-  const b = document.getElementById('set-prem');
-  if(b) b.style.display = DB.user && DB.user.premium ? 'inline-block':'none';
+  DB.user.premium = false; DB.premiumPlan = null;
+  saveDB(); toast('Premium отменён'); renderSettings();
 }
 
-/* ---------- Сброс ---------- */
 function resetAll(){
-  if(!confirm('Выйти и удалить все данные прототипа?')) return;
-  localStorage.removeItem(DB_KEY);
-  DB = loadDB();
-  currentConv = null;
-  go('scr-welcome');
+  if(!confirm('Удалить все данные?')) return;
+  localStorage.removeItem(DB_KEY); DB = loadDB(); currentConv = null; go('scr-welcome');
 }
 
-/* ---------- Инициализация ---------- */
-function renderAll(){
-  if(DB.user){
-    document.getElementById('top-avatar').textContent = DB.user.avatar;
-  }
-}
-if(DB.user){
-  // если профиль уже есть — сразу в чаты
-  renderAll();
-  go('scr-chats');
-}else{
-  go('scr-welcome');
-}
+if(DB.user){ go('scr-chats'); } else { go('scr-welcome'); }
 </script>
 </body>
 </html>
