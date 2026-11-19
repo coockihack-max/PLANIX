@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PLANIX</title>
+<style>
+  :root{
+    --bg:#0b0f1a; --panel:#121828; --panel2:#1a2238; --line:#232c44;
+    --text:#e8ecf7; --muted:#8b95b5; --accent:#5b8cff; --accent2:#8b5bff;
+    --ok:#2ecc71; --warn:#ffb84d; --bad:#ff5b6e;
+    --radius:16px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    background:radial-gradient(1200px 600px at 20% 0%, #17203a 0%, var(--bg) 60%);
+    color:var(--text); overflow:hidden;
+  }
+  .app{max-width:520px; margin:0 auto; height:100dvh; display:flex; flex-direction:column; position:relative;}
+  .screen{display:none; flex-direction:column; height:100%; animation:fade .25s ease;}
+  .screen.active{display:flex;}
+  @keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+  @keyframes pop{from{opacity:0; transform:scale(.96);} to{opacity:1; transform:scale(1);}}
+  @keyframes slideUp{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:none;}}
+  .pad{padding:20px;}
+  .center{align-items:center; justify-content:center; text-align:center;}
+  h1{font-size:34px; margin:0 0 6px; letter-spacing:.5px;}
+  h2{font-size:20px; margin:0 0 12px;}
+  .logo{width:84px;height:84px;border-radius:24px; margin-bottom:18px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    display:flex;align-items:center;justify-content:center;font-size:40px;
+    box-shadow:0 10px 40px rgba(91,140,255,.35); animation:pop .4s ease;}
+  .sub{color:var(--muted); font-size:15px; line-height:1.5; margin:0 0 22px;}
+  .btn{width:100%; padding:15px; border:none; border-radius:var(--radius); font-size:16px; font-weight:600;
+    background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; cursor:pointer;
+    transition:transform .12s, opacity .2s;}
+  .btn:active{transform:scale(.97);}
+  .btn.ghost{background:transparent; border:1px solid var(--line); color:var(--text);}
+  .btn.small{padding:10px 14px; font-size:14px; width:auto;}
+  .btn:disabled{opacity:.5; cursor:default;}
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-size:13px; color:var(--muted); margin-bottom:7px;}
+  input,select{width:100%; padding:14px; border-radius:14px; border:1px solid var(--line);
+    background:var(--panel); color:var(--text); font-size:16px; outline:none; transition:border .2s;}
+  input:focus,select:focus{border-color:var(--accent);}
+  .code-row{display:flex; gap:8px; justify-content:center; margin:18px 0;}
+  .code-row input{width:44px; height:56px; text-align:center; font-size:22px; font-weight:700; padding:0;}
+  .hint{font-size:13px; color:var(--muted); margin-top:10px;}
+  .topbar{display:flex; align-items:center; gap:12px; padding:14px 16px; border-bottom:1px solid var(--line);
+    background:rgba(18,24,40,.6); backdrop-filter:blur(10px); position:sticky; top:0; z-index:5;}
+  .topbar h2{margin:0; font-size:18px; flex:1;}
+  .icon-btn{width:40px;height:40px;border-radius:12px; border:1px solid var(--line); background:var(--panel);
+    color:var(--text); font-size:18px; cursor:pointer; display:flex;align-items:center;justify-content:center;}
+  .icon-btn:active{transform:scale(.94);}
+  .scroll{flex:1; overflow-y:auto; padding:16px;}
+  .list-item{display:flex; align-items:center; gap:12px; padding:13px; border-radius:14px;
+    background:var(--panel); margin-bottom:10px; cursor:pointer; transition:transform .12s, background .2s;}
+  .list-item:active{transform:scale(.98); background:var(--panel2);}
+  .avatar{width:46px;height:46px;border-radius:14px; flex-shrink:0;
+    background:linear-gradient(135deg,#2b3a66,#1c2642); display:flex;align-items:center;justify-content:center;
+    font-weight:700; font-size:18px; color:#9fb3ff;}
+  .avatar.self{background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff;}
+  .li-main{flex:1; min-width:0;}
+  .li-title{font-weight:600; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .li-sub{color:var(--muted); font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .badge{font-size:11px; padding:3px 8px; border-radius:999px; background:var(--panel2); color:var(--muted);}
+  .badge.prem{background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff;}
+  .chat-body{flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:10px;}
+  .msg{max-width:80%; padding:11px 14px; border-radius:16px; font-size:15px; line-height:1.4;
+    animation:slideUp .22s ease; word-wrap:break-word;}
+  .msg.me{align-self:flex-end; background:linear-gradient(135deg,var(--accent),var(--accent2)); border-bottom-right-radius:5px;}
+  .msg.them{align-self:flex-start; background:var(--panel2); border-bottom-left-radius:5px;}
+  .msg .meta{display:block; font-size:11px; opacity:.65; margin-top:4px;}
+  .composer{display:flex; gap:8px; padding:12px; border-top:1px solid var(--line); background:var(--panel);}
+  .composer input{flex:1; border-radius:14px;}
+  .send{width:48px;height:48px;border-radius:14px; border:none; color:#fff; font-size:20px; cursor:pointer;
+    background:linear-gradient(135deg,var(--accent),var(--accent2)); flex-shrink:0;}
+  .send:active{transform:scale(.94);}
+  .sheet{position:absolute; inset:0; background:rgba(0,0,0,.55); display:none; align-items:flex-end; z-index:20;}
+  .sheet.open{display:flex; animation:fade .2s;}
+  .sheet-panel{width:100%; background:var(--panel); border-radius:24px 24px 0 0; padding:20px;
+    animation:slideUp .25s ease;}
+  .sheet-panel h3{margin:0 0 14px; font-size:18px;}
+  .opt{display:flex; align-items:center; gap:12px; padding:14px; border-radius:14px; background:var(--panel2);
+    margin-bottom:10px; cursor:pointer; font-size:15px;}
+  .opt:active{transform:scale(.98);}
+  .opt .emo{font-size:20px; width:26px; text-align:center;}
+  .row{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px;
+    background:var(--panel); border-radius:14px; margin-bottom:10px;}
+  .row .t{font-size:15px;}
+  .row .d{font-size:12px; color:var(--muted); margin-top:3px;}
+  .switch{width:50px;height:30px;border-radius:999px; background:var(--line); position:relative; cursor:pointer; flex-shrink:0; transition:background .2s;}
+  .switch.on{background:var(--accent);}
+  .switch::after{content:""; position:absolute; width:24px;height:24px;border-radius:50%; background:#fff; top:3px; left:3px; transition:left .2s;}
+  .switch.on::after{left:23px;}
+  .toast{position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(20px);
+    background:var(--panel2); border:1px solid var(--line); color:var(--text); padding:12px 18px; border-radius:14px;
+    font-size:14px; opacity:0; pointer-events:none; transition:all .3s; z-index:100; max-width:90%; text-align:center;}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  .empty{text-align:center; color:var(--muted); padding:40px 20px; font-size:14px; line-height:1.6;}
+  .warn-box{background:rgba(255,184,77,.1); border:1px solid rgba(255,184,77,.3); color:#ffd08a;
+    padding:14px; border-radius:14px; font-size:13px; line-height:1.5; margin-bottom:14px;}
+  .plan-card{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:10px; cursor:pointer; transition:border .2s, transform .12s;}
+  .plan-card:active{transform:scale(.98);}
+  .plan-card.best{border-color:var(--accent); box-shadow:0 0 0 1px var(--accent);}
+  .plan-card .p{font-size:22px; font-weight:700;}
+  .plan-card .n{color:var(--muted); font-size:13px;}
+  .fade-in{animation:fade .3s ease;}
+  .divider{height:1px; background:var(--line); margin:16px 0;}
+  .pill-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;}
+  .pill{padding:8px 14px; border-radius:999px; background:var(--panel2); font-size:13px; cursor:pointer; border:1px solid transparent;}
+  .pill.active{background:rgba(91,140,255,.2); border-color:var(--accent); color:#a9c1ff;}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- ЭКРАН 1: ПРИВЕТСТВИЕ -->
+  <div class="screen active center pad" id="scr-welcome">
+    <div class="logo">P</div>
+    <h1>PLANIX</h1>
+    <p class="sub">Живой мессенджер.<br>Приватный. Надёжный.</p>
+    <button class="btn" onclick="go('scr-email')">Продолжить с email</button>
+    <p class="hint">Прототип. Данные хранятся только в вашем браузере.</p>
+  </div>
+
+  <!-- ЭКРАН 2: ВВОД EMAIL -->
+  <div class="screen pad" id="scr-email">
+    <div class="topbar" style="margin:-20px -20px 20px; background:transparent; border:none;">
+      <button class="icon-btn" onclick="go('scr-welcome')">←</button>
+      <h2>Вход</h2>
+    </div>
+    <p class="sub">Введите почту — мы отправим код для входа.</p>
+    <div class="field">
+      <label>Email</label>
+      <input id="inp-email" type="email" placeholder="you@example.com" autocomplete="email">
+    </div>
+    <button class="btn" id="btn-send-code" onclick="sendCode()">Получить код</button>
+    <p class="hint">Код действует 10 минут. В прототипе он покажется на экране.</p>
+  </div>
+
+  <!-- ЭКРАН 3: ВВОД КОДА -->
+  <div class="screen pad" id="scr-code">
+    <div class="topbar" style="margin:-20px -20px 20px; background:transparent; border:none;">
+      <button class="icon-btn" onclick="go('scr-email')">←</button>
+      <h2>Код из письма</h2>
+    </div>
+    <p class="sub" id="code-sub">Введите 6-значный код.</p>
+    <div class="code-row" id="code-row">
+      <input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric">
+      <input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric">
+    </div>
+    <div class="warn-box" id="code-demo" style="display:none;"></div>
+    <button class="btn" onclick="verifyCode()">Подтвердить</button>
+    <p class="hint" id="code-timer"></p>
+  </div>
+
+  <!-- ЭКРАН 4: НАСТРОЙКА ПРОФИЛЯ -->
+  <div class="screen pad" id="scr-profile">
+    <div class="topbar" style="margin:-20px -20px 20px; background:transparent; border:none;">
+      <h2 style="flex:1;">Настройте профиль</h2>
+    </div>
+    <div style="text-align:center; margin-bottom:18px;">
+      <div class="avatar self" id="prof-avatar" style="width:80px;height:80px;font-size:32px;margin:0 auto 10px;">?</div>
+      <button class="btn ghost small" onclick="pickAvatar()">Сменить аватар</button>
+    </div>
+    <div class="field">
+      <label>Имя (обязательно)</label>
+      <input id="inp-name" placeholder="Как вас зовут?" maxlength="40">
+    </div>
+    <div class="field">
+      <label>Уникальное имя (@ник)</label>
+      <input id="inp-username" placeholder="username" maxlength="20">
+    </div>
+    <div class="field">
+      <label>Тема оформления</label>
+      <select id="inp-theme">
+        <option value="neon">Neon Wave</option>
+        <option value="calm">Calm Blue</option>
+        <option value="sunset">Sunset</option>
+      </select>
+    </div>
+    <button class="btn" onclick="finishProfile()">Готово</button>
+    <button class="btn ghost" style="margin-top:10px;" onclick="finishProfile(true)">Пропустить (кроме имени)</button>
+  </div>
+
+  <!-- ЭКРАН 5: СПИСОК ЧАТОВ -->
+  <div class="screen" id="scr-chats">
+    <div class="topbar">
+      <div class="avatar self" id="top-avatar" style="width:38px;height:38px;font-size:15px;cursor:pointer;" onclick="go('scr-settings')">?</div>
+      <h2>PLANIX</h2>
+      <button class="icon-btn" onclick="openCreateSheet()">＋</button>
+    </div>
+    <div class="scroll" id="chats-list"></div>
+    <div class="empty" id="chats-empty">Пока пусто.<br>Нажмите ＋, чтобы создать чат.</div>
+  </div>
+
+  <!-- ЭКРАН 6: ЧАТ -->
+  <div class="screen" id="scr-chat">
+    <div class="topbar">
+      <button class="icon-btn" onclick="go('scr-chats')">←</button>
+      <div class="avatar" id="chat-avatar" style="width:38px;height:38px;font-size:15px;">?</div>
+      <div style="flex:1; min-width:0;">
+        <h2 id="chat-title" style="margin:0; font-size:16px;">Чат</h2>
+        <div id="chat-type" style="font-size:12px; color:var(--muted);"></div>
+      </div>
+      <button class="icon-btn" onclick="go('scr-settings')">⚙</button>
+    </div>
+    <div class="chat-body" id="chat-body"></div>
+    <div class="composer">
+      <input id="inp-msg" placeholder="Сообщение..." onkeydown="if(event.key==='Enter')sendMsg()">
+      <button class="send" onclick="sendMsg()">➤</button>
+    </div>
+  </div>
+
+  <!-- ЭКРАН 7: НАСТРОЙКИ -->
+  <div class="screen" id="scr-settings">
+    <div class="topbar">
+      <button class="icon-btn" onclick="go('scr-chats')">←</button>
+      <h2>Настройки</h2>
+    </div>
+    <div class="scroll">
+      <div class="row">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div class="avatar self" id="set-avatar" style="width:44px;height:44px;font-size:16px;">?</div>
+          <div>
+            <div class="t" id="set-name">Гость</div>
+            <div class="d" id="set-username">@guest</div>
+          </div>
+        </div>
+        <span class="badge prem" id="set-prem" style="display:none;">PREMIUM</span>
+      </div>
+
+      <h3 style="margin:20px 0 10px; font-size:15px; color:var(--muted);">Конфиденциальность</h3>
+
+      <div class="row" style="flex-direction:column; align-items:stretch;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div class="t">📸 Скриншоты в чатах</div>
+            <div class="d">Кто может делать скриншоты переписки</div>
+          </div>
+        </div>
+        <select id="set-screenshot" style="margin-top:10px;" onchange="saveScreenshotPolicy()">
+          <option value="ask">Спрашивать каждый раз</option>
+          <option value="allow_all">Разрешить всем</option>
+          <option value="direct_only">Только в личных чатах</option>
+          <option value="deny_all">Запретить всем</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <div>
+          <div class="t">👻 Невидимка</div>
+          <div class="d">Скрыть «онлайн» и «прочитано»</div>
+        </div>
+        <div class="switch" id="set-invisible" onclick="toggleSwitch(this,'invisible')"></div>
+      </div>
+
+      <div class="row">
+        <div>
+          <div class="t">⏳ Исчезающие сообщения</div>
+          <div class="d">Автоудаление через 24 часа</div>
+        </div>
+        <div class="switch" id="set-disappear" onclick="toggleSwitch(this,'disappear')"></div>
+      </div>
+
+      <div class="row">
+        <div>
+          <div class="t">⚡ Режим «Эконом»</div>
+          <div class="d">Меньше анимаций, больше батареи</div>
+        </div>
+        <div class="switch" id="set-eco" onclick="toggleSwitch(this,'eco')"></div>
+      </div>
+
+      <h3 style="margin:20px 0 10px; font-size:15px; color:var(--muted);">PLANIX PREMIUM</h3>
+      <div id="premium-block"></div>
+
+      <div class="divider"></div>
+      <button class="btn ghost" onclick="resetAll()">Выйти и очистить данные</button>
+      <p class="hint" style="text-align:center;">PLANIX Prototype · данные только в браузере</p>
+    </div>
+  </div>
+
+  <!-- ШТОРКА: СОЗДАТЬ -->
+  <div class="sheet" id="sheet-create" onclick="if(event.target===this)closeSheet()">
+    <div class="sheet-panel">
+      <h3>Создать</h3>
+      <div class="opt" onclick="createConv('talk')"><span class="emo">🗣</span> Беседа — до 10 человек</div>
+      <div class="opt" onclick="createConv('group')"><span class="emo">👥</span> Группа — много участников</div>
+      <div class="opt" onclick="createConv('channel')"><span class="emo">📢</span> Канал — только админы пишут</div>
+      <div class="opt" onclick="closeSheet()" style="justify-content:center; color:var(--muted);">Отмена</div>
+    </div>
+  </div>
+
+  <!-- ШТОРКА: СОЗДАНИЕ ДИАЛОГА -->
+  <div class="sheet" id="sheet-newconv" onclick="if(event.target===this)closeSheet()">
+    <div class="sheet-panel">
+      <h3 id="newconv-title">Новый диалог</h3>
+      <div class="field">
+        <label>Название</label>
+        <input id="newconv-name" placeholder="Название" maxlength="60">
+      </div>
+      <div class="field">
+        <label>Тип</label>
+        <div class="pill-row" id="newconv-types"></div>
+      </div>
+      <button class="btn" onclick="confirmCreateConv()">Создать</button>
+      <button class="btn ghost" style="margin-top:10px;" onclick="closeSheet()">Отмена</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+/* ============================================================
+   PLANIX PROTOTYPE — один файл, localStorage
+   ============================================================ */
+
+const DB_KEY = 'planix_proto_v1';
+let DB = loadDB();
+let currentConv = null;
+let pendingEmail = '';
+let pendingCode = '';
+let pendingIsNew = false;
+let codeTimerInt = null;
+let newConvType = 'group';
+
+function loadDB(){
+  try{
+    const raw = localStorage.getItem(DB_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return {
+    user: null,          // {name, username, avatar, premium, settings}
+    convs: [],           // [{id,type,title,avatar,messages:[{id,text,me,ts}]}]
+    premium: false,
+    premiumPlan: null
+  };
+}
+function saveDB(){ localStorage.setItem(DB_KEY, JSON.stringify(DB)); }
+
+/* ---------- Навигация ---------- */
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(id==='scr-chats') renderChats();
+  if(id==='scr-settings') renderSettings();
+}
+
+/* ---------- Toast ---------- */
+let toastT=null;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+/* ---------- ЭКРАН EMAIL → КОД ---------- */
+function sendCode(){
+  const email = document.getElementById('inp-email').value.trim();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ toast('Введите корректный email'); return; }
+  pendingEmail = email;
+  pendingCode = String(Math.floor(100000 + Math.random()*900000));
+  pendingIsNew = !DB.user || (DB.user && DB.user.email !== email) ? true : false;
+  // В прототипе профиль один; считаем новым, если профиля нет
+  pendingIsNew = !DB.user;
+
+  document.getElementById('code-sub').textContent = 'Код отправлен на ' + email;
+  const demo = document.getElementById('code-demo');
+  demo.style.display='block';
+  demo.textContent = '🔐 Демо-режим: ваш код — ' + pendingCode + ' (в реальном приложении придёт на почту)';
+
+  const inputs = document.querySelectorAll('#code-row input');
+  inputs.forEach(i=>i.value='');
+  inputs[0].focus();
+
+  startCodeTimer();
+  go('scr-code');
+}
+
+function startCodeTimer(){
+  clearInterval(codeTimerInt);
+  let left = 600; // 10 минут
+  const el = document.getElementById('code-timer');
+  const tick = ()=>{
+    const m = Math.floor(left/60), s = left%60;
+    el.textContent = 'Код действует: ' + m + ':' + String(s).padStart(2,'0');
+    if(left<=0){ clearInterval(codeTimerInt); el.textContent='Код истёк. Запросите новый.'; }
+    left--;
+  };
+  tick(); codeTimerInt = setInterval(tick,1000);
+}
+
+// автопереход между ячейками кода
+document.addEventListener('DOMContentLoaded', ()=>{
+  const inputs = document.querySelectorAll('#code-row input');
+  inputs.forEach((inp,idx)=>{
+    inp.addEventListener('input',()=>{
+      inp.value = inp.value.replace(/\D/g,'').slice(0,1);
+      if(inp.value && idx<inputs.length-1) inputs[idx+1].focus();
+    });
+    inp.addEventListener('keydown',(e)=>{
+      if(e.key==='Backspace' && !inp.value && idx>0) inputs[idx-1].focus();
+    });
+  });
+});
+
+function verifyCode(){
+  const inputs = document.querySelectorAll('#code-row input');
+  const entered = Array.from(inputs).map(i=>i.value).join('');
+   if(entered.length!==6){ toast('Введите все 6 цифр'); return; }
+  if(entered!==pendingCode){ toast('Неверный код'); return; }
+  clearInterval(codeTimerInt);
+
+  if(pendingIsNew){
+    // новый пользователь → настройка профиля
+    const av = document.getElementById('prof-avatar');
+    av.textContent = '?';
+    document.getElementById('inp-name').value='';
+    document.getElementById('inp-username').value='';
+    go('scr-profile');
+  }else{
+    // существующий → кнопка «Войти» (эмулируем: сразу входим)
+    toast('С возвращением!');
+    go('scr-chats');
+  }
+}
+
+/* ---------- Настройка профиля ---------- */
+const avatarEmojis = ['🦊','🐼','🐯','🦉','🐸','🐙','🦄','🐺','🐨','🦁','🐵','🐧'];
+let avatarPick = null;
+function pickAvatar(){
+  avatarPick = avatarEmojis[Math.floor(Math.random()*avatarEmojis.length)];
+  document.getElementById('prof-avatar').textContent = avatarPick;
+}
+
+function finishProfile(skip){
+  const name = document.getElementById('inp-name').value.trim();
+  if(!name){ toast('Имя обязательно'); return; }
+  const username = (document.getElementById('inp-username').value.trim() || 'user'+Math.floor(Math.random()*9999)).replace(/^@/,'');
+  const theme = skip ? 'neon' : document.getElementById('inp-theme').value;
+  const avatar = avatarPick || name.charAt(0).toUpperCase();
+
+  DB.user = {
+    email: pendingEmail,
+    name, username, avatar, theme,
+    premium: false,
+    settings: { screenshot:'ask', invisible:false, disappear:false, eco:false }
+  };
+  saveDB();
+  toast('Добро пожаловать в PLANIX!');
+  renderAll();
+  go('scr-chats');
+}
+
+/* ---------- Список чатов ---------- */
+function renderChats(){
+  const list = document.getElementById('chats-list');
+  const empty = document.getElementById('chats-empty');
+  // обновить аватар в топбаре
+  if(DB.user){
+    document.getElementById('top-avatar').textContent = DB.user.avatar;
+  }
+  list.innerHTML='';
+  if(!DB.convs.length){ empty.style.display='block'; return; }
+  empty.style.display='none';
+  DB.convs.forEach(c=>{
+    const last = c.messages[c.messages.length-1];
+    const div = document.createElement('div');
+    div.className='list-item';
+    div.onclick = ()=> openChat(c.id);
+    const typeLabel = {talk:'Беседа', group:'Группа', channel:'Канал'}[c.type]||'Чат';
+    div.innerHTML = `
+      <div class="avatar">${c.avatar||'💬'}</div>
+      <div class="li-main">
+        <div class="li-title">${escapeHtml(c.title)}</div>
+        <div class="li-sub">${last?escapeHtml(last.text):'Нет сообщений'}</div>
+      </div>
+      <span class="badge">${typeLabel}</span>`;
+    list.appendChild(div);
+  });
+}
+
+function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+/* ---------- Открыть чат ---------- */
+function openChat(id){
+  currentConv = DB.convs.find(c=>c.id===id);
+  if(!currentConv) return;
+  document.getElementById('chat-title').textContent = currentConv.title;
+  document.getElementById('chat-avatar').textContent = currentConv.avatar||'💬';
+  const typeLabel = {talk:'Беседа · до 10', group:'Группа', channel:'Канал · только админы'}[currentConv.type]||'Чат';
+  document.getElementById('chat-type').textContent = typeLabel;
+  renderMessages();
+  go('scr-chat');
+}
+
+function renderMessages(){
+  const body = document.getElementById('chat-body');
+  body.innerHTML='';
+  if(!currentConv) return;
+  if(!currentConv.messages.length){
+    body.innerHTML = '<div class="empty">Начните переписку 👋</div>';
+  }
+  currentConv.messages.forEach(m=>{
+    const d = document.createElement('div');
+    d.className = 'msg ' + (m.me?'me':'them');
+    const time = new Date(m.ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+    d.innerHTML = escapeHtml(m.text) + `<span class="meta">${time}</span>`;
+    body.appendChild(d);
+  });
+  body.scrollTop = body.scrollHeight;
+}
+
+function sendMsg(){
+  const inp = document.getElementById('inp-msg');
+  const text = inp.value.trim();
+  if(!text || !currentConv) return;
+  currentConv.messages.push({id:uid(), text, me:true, ts:Date.now()});
+  inp.value='';
+  saveDB();
+  renderMessages();
+  // автоответ для демонстрации
+  setTimeout(()=>{
+    currentConv.messages.push({id:uid(), text:'👍 (автоответ прототипа)', me:false, ts:Date.now()});
+    saveDB();
+    if(document.getElementById('scr-chat').classList.contains('active')) renderMessages();
+  }, 900);
+}
+
+function uid(){ return Math.random().toString(36).slice(2)+Date.now().toString(36); }
+
+/* ---------- Создание диалога ---------- */
+function openCreateSheet(){ document.getElementById('sheet-create').classList.add('open'); }
+function closeSheet(){
+  document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('open'));
+}
+
+function createConv(type){
+  newConvType = type;
+  closeSheet();
+  const titles = {talk:'Новая беседа', group:'Новая группа', channel:'Новый канал'};
+  document.getElementById('newconv-title').textContent = titles[type];
+  document.getElementById('newconv-name').value='';
+  const typesBox = document.getElementById('newconv-types');
+  const types = [['talk','Беседа'],['group','Группа'],['channel','Канал']];
+  typesBox.innerHTML = types.map(([v,l])=>
+    `<div class="pill ${v===type?'active':''}" onclick="pickConvType('${v}',this)">${l}</div>`).join('');
+  document.getElementById('sheet-newconv').classList.add('open');
+}
+function pickConvType(v, el){
+  newConvType = v;
+  document.querySelectorAll('#newconv-types .pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function confirmCreateConv(){
+  const name = document.getElementById('newconv-name').value.trim();
+  if(!name){ toast('Введите название'); return; }
+  const avatars = {talk:'🗣', group:'👥', channel:'📢'};
+  const conv = {
+    id: uid(), type: newConvType, title: name,
+    avatar: avatars[newConvType]||'💬',
+    messages: []
+  };
+  DB.convs.unshift(conv);
+  saveDB();
+  closeSheet();
+  renderChats();
+  openChat(conv.id);
+  toast('Создано: ' + name);
+}
+
+/* ---------- Настройки ---------- */
+function renderSettings(){
+  if(!DB.user) return;
+  document.getElementById('set-avatar').textContent = DB.user.avatar;
+  document.getElementById('set-name').textContent = DB.user.name;
+  document.getElementById('set-username').textContent = '@' + DB.user.username;
+  document.getElementById('set-prem').style.display = DB.user.premium?'inline-block':'none';
+  document.getElementById('set-screenshot').value = DB.user.settings.screenshot;
+
+  setSwitch('set-invisible', DB.user.settings.invisible);
+  setSwitch('set-disappear', DB.user.settings.disappear);
+  setSwitch('set-eco', DB.user.settings.eco);
+
+  renderPremium();
+}
+
+function setSwitch(id, on){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.classList.toggle('on', !!on);
+}
+function toggleSwitch(el, key){
+  el.classList.toggle('on');
+  DB.user.settings[key] = el.classList.contains('on');
+  saveDB();
+}
+
+function saveScreenshotPolicy(){
+  const v = document.getElementById('set-screenshot').value;
+  DB.user.settings.screenshot = v;
+  saveDB();
+  const labels = {ask:'Спрашивать каждый раз', allow_all:'Разрешить всем', direct_only:'Только в личных чатах', deny_all:'Запретить всем'};
+  toast('Скриншоты: ' + labels[v]);
+}
+
+/* ---------- Premium ---------- */
+const PREMIUM_PLANS = [
+  {id:'week', title:'Неделя', price:50, note:'50 ₽ / неделя'},
+  {id:'month', title:'Месяц', price:150, note:'150 ₽ / месяц · выгоднее', best:true},
+  {id:'year', title:'Год', price:350, note:'350 ₽ / год · максимум выгоды'}
+];
+
+function renderPremium(){
+  const box = document.getElementById('premium-block');
+  if(DB.user.premium){
+    box.innerHTML = `<div class="row" style="border:1px solid var(--accent);">
+      <div>
+        <div class="t">✨ Premium активен</div>
+        <div class="d">Тариф: ${DB.premiumPlan||'—'}</div>
+      </div>
+      <button class="btn ghost small" onclick="cancelPremium()">Отменить</button>
+    </div>`;
+    return;
+  }
+  box.innerHTML = PREMIUM_PLANS.map(p=>`
+    <div class="plan-card ${p.best?'best':''}" onclick="buyPremium('${p.id}')">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div class="p">${p.title}</div>
+          <div class="n">${p.note}</div>
+        </div>
+        <div class="badge prem">${p.price} ₽</div>
+      </div>
+    </div>`).join('') +
+    `<p class="hint">Демо-оплата. В реальном приложении — ЮKassa / Stripe / App Store.</p>`;
+}
+
+function buyPremium(planId){
+  const plan = PREMIUM_PLANS.find(p=>p.id===planId);
+  DB.user.premium = true;
+  DB.premiumPlan = plan.title + ' · ' + plan.price + ' ₽';
+  saveDB();
+  toast('✨ Premium активирован (демо)');
+  renderSettings();
+  renderPremiumBadge();
+}
+function cancelPremium(){
+  DB.user.premium = false;
+  DB.premiumPlan = null;
+  saveDB();
+  toast('Premium отменён');
+  renderSettings();
+  renderPremiumBadge();
+}
+function renderPremiumBadge(){
+  const b = document.getElementById('set-prem');
+  if(b) b.style.display = DB.user && DB.user.premium ? 'inline-block':'none';
+}
+
+/* ---------- Сброс ---------- */
+function resetAll(){
+  if(!confirm('Выйти и удалить все данные прототипа?')) return;
+  localStorage.removeItem(DB_KEY);
+  DB = loadDB();
+  currentConv = null;
+  go('scr-welcome');
+}
+
+/* ---------- Инициализация ---------- */
+function renderAll(){
+  if(DB.user){
+    document.getElementById('top-avatar').textContent = DB.user.avatar;
+  }
+}
+if(DB.user){
+  // если профиль уже есть — сразу в чаты
+  renderAll();
+  go('scr-chats');
+}else{
+  go('scr-welcome');
+}
+</script>
+</body>
+</html>
